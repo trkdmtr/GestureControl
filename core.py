@@ -2,13 +2,23 @@ import cv2
 import mediapipe as mp
 
 
+class Cam:
+    def __init__(self, device_id, img_width, img_height):
+        self.cap = cv2.VideoCapture(device_id)
+        self.cap.set(3,img_width)
+        self.cap.set(4,img_height)
+
+    def __call__(self):
+        _,img = self.cap.read()
+        return img 
+
+
 class HandTracker:
     '''
     Analyzes an image, returns fingertip positions
     '''
     def __init__(self):
         self.hands = mp.solutions.hands.Hands(max_num_hands = 1)
-        #self.mp_draw = mp.solutions.drawing_utils
 
     def track(self,img):
         base_points = []
@@ -22,9 +32,8 @@ class HandTracker:
                     base_points.append([cx,cy])      
         return base_points
 
-    def get_gesture(self,img):
+    def get_gesture(self,base_points):
         gesture_desc = []
-        base_points = self.track(img)
         if len(base_points):
             #thumb case
             dist = ((base_points[4][0]-base_points[17][0])**2+
@@ -45,18 +54,20 @@ class HandTracker:
                     gesture_desc.append(1)
                 else:
                     gesture_desc.append(0)
-        return gesture_desc
+        gesture_id = 0
+        for i,finger in enumerate(gesture_desc):
+            if finger == 1:
+                gesture_id += 2**i
+        return gesture_id
 
-    def get_distance(self,img,p1,p2):
-        base_points = self.track(img)
+    def get_distance(self,base_points,p1,p2):
         if p1<0 or p1>20 or p2<0 or p2>20 or len(base_points)==0:
             return None
         dist = ((base_points[p1][0]-base_points[p2][0])**2+
                 (base_points[p1][1]-base_points[p2][1])**2)**0.5
         return dist                                                            
 
-    def visualize(self,img):
-        base_points = self.track(img)
+    def visualize(self,base_points):
         for point in base_points:
                 cv2.circle(img,(point[0],point[1]),10,(0,0,255),cv2.FILLED)
         return img        
@@ -69,11 +80,5 @@ if __name__ == '__main__':
         success,img = cap.read()
         img = tracker.visualize(img)
         cv2.imshow('Image',img)
-        """ gesture = tracker.get_gesture(img)
-        if len(gesture):
-            print(gesture) """
-        """ dist = tracker.get_distance(img,8,12)
-        if dist is not None:
-            print(dist) """
         cv2.waitKey(1)
    
