@@ -5,28 +5,37 @@ import time
 
 
 class Controller:
-    def __init__(self, img_width, img_height):
-        self.screen_width,self.screen_height = pyautogui.size()
-        self.width_transform,self.height_transform = self.screen_width/img_width,self.screen_height/img_height
+    def __init__(self, smoothen=5):
+        self.x0,self.y0 = -1,-1
+        self.smoothen = smoothen
 
     def process_gesture(self,gesture: core.Gesture):
         if gesture.id == -1:
             pass
+        elif gesture.id == 0:
+            self.x0,self.y0 = -1,-1
         elif gesture.id == 2:
             x,y = gesture.coords[1]
-            x,y = (self.screen_width - x*self.width_transform,
-                    y*self.height_transform)
-            pyautogui.moveTo(x,y)
+            if self.x0 == -1:
+                self.x0,self.y0 = x,y
+            else:
+                dx,dy = (self.x0-x)//self.smoothen, (y-self.y0)//self.smoothen
+                pyautogui.move(dx,dy)
+                self.x0 -= dx
+                self.y0 += dy
+        elif gesture.id == 3:
+            if gesture.get_distance(0,1) <= 40:
+                pyautogui.click(button='right')
         elif gesture.id == 6:
-            if gesture.get_distance(1,2) <= 50:
-                pyautogui.click()    
+            if gesture.get_distance(1,2) <= 40:
+                pyautogui.click(button='left')    
         else:
             pass
 
 
 cam = core.Cam(0,1280,720)
 tracker = core.HandTracker()
-magic_mouse = Controller(1280,720)
+magic_mouse = Controller()
 p_time = 0
 while True:
     img = cam()
