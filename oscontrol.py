@@ -33,21 +33,22 @@ class Controller:
             pass
 
 
-cam = core.Cam(0,1280,720)
-tracker = core.HandTracker()
-magic_mouse = Controller()
-p_time = 0
-while True:
-    img = cam()
-    points = tracker.track(img)
-    gesture = tracker.get_gesture(points)
-    magic_mouse.process_gesture(gesture)
-    c_time = time.time()
-    fps = 1/(c_time-p_time)
-    p_time = c_time
-    cv2.putText(img,str(int(fps)),(20,50),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255))
-    cv2.imshow('Image',img)
-    cv2.waitKey(1)
+if __name__ == '__main__':
+    cam = core.Cam(0,1280,720)
+    tracker = core.HandTracker()
+    magic_mouse = Controller()
+    p_time = 0
+    while True:
+        img = cam()
+        points = tracker.track(img)
+        gesture = tracker.get_gesture(points)
+        magic_mouse.process_gesture(gesture)
+        c_time = time.time()
+        fps = 1/(c_time-p_time)
+        p_time = c_time
+        cv2.putText(img,str(int(fps)),(20,50),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255))
+        cv2.imshow('Image',img)
+        cv2.waitKey(1)
 
 
 

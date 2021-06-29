@@ -75,18 +75,9 @@ class HandTracker:
                 fingertips.append(base_points[i])
         return Gesture(gesture_id,fingertips)                                                          
 
-    def visualize(self,base_points):
+    def visualize(self,img,base_points):
         for point in base_points:
                 cv2.circle(img,(point[0],point[1]),10,(0,0,255),cv2.FILLED)
         return img        
 
-
-if __name__ == '__main__':
-    cap = cv2.VideoCapture(0)
-    tracker  = HandTracker()
-    while True:
-        success,img = cap.read()
-        img = tracker.visualize(img)
-        cv2.imshow('Image',img)
-        cv2.waitKey(1)
    
