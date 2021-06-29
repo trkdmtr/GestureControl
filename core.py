@@ -13,6 +13,17 @@ class Cam:
         return img 
 
 
+class Gesture:
+    def __init__(self,id,coords):
+        self.id = id
+        self.coords = coords.copy()
+
+    def get_distance(self,p1,p2):
+        dist = ((self.coords[p1][0]-self.coords[p2][0])**2+
+                (self.coords[p1][1]-self.coords[p2][1])**2)**0.5
+        return dist
+
+
 class HandTracker:
     '''
     Analyzes an image, returns fingertip positions
@@ -34,6 +45,8 @@ class HandTracker:
 
     def get_gesture(self,base_points):
         gesture_desc = []
+        gesture_id = -1
+        fingertips = []
         if len(base_points):
             #thumb case
             dist = ((base_points[4][0]-base_points[17][0])**2+
@@ -54,18 +67,13 @@ class HandTracker:
                     gesture_desc.append(1)
                 else:
                     gesture_desc.append(0)
-        gesture_id = 0
-        for i,finger in enumerate(gesture_desc):
-            if finger == 1:
-                gesture_id += 2**i
-        return gesture_id
-
-    def get_distance(self,base_points,p1,p2):
-        if p1<0 or p1>20 or p2<0 or p2>20 or len(base_points)==0:
-            return None
-        dist = ((base_points[p1][0]-base_points[p2][0])**2+
-                (base_points[p1][1]-base_points[p2][1])**2)**0.5
-        return dist                                                            
+            gesture_id = 0
+            for i,finger in enumerate(gesture_desc):
+                if finger == 1:
+                    gesture_id += 2**i
+            for i in range(4,24,4):
+                fingertips.append(base_points[i])
+        return Gesture(gesture_id,fingertips)                                                          
 
     def visualize(self,base_points):
         for point in base_points:
