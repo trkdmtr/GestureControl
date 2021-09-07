@@ -26,9 +26,11 @@ class Controller:
         elif gesture.id == 3:
             if gesture.get_distance(0,1) <= 40:
                 pyautogui.click(button='right')
+                print('RMB')
         elif gesture.id == 6:
             if gesture.get_distance(1,2) <= 40:
-                pyautogui.click(button='left')    
+                pyautogui.click(button='left')
+                print('LMB')    
         else:
             pass
 
